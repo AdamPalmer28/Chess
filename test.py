@@ -55,3 +55,13 @@ list_time = (time.time()-before2)
 
 print(list_time - array)
 
+
+# %% move list
+def ind_to_square(index):
+    letter = ['A','B','C','D','E','F','G','H']
+    square = letter[index % 8] + str((index // 8) +1)
+    return square
+
+def move_script(move):
+    pass
+

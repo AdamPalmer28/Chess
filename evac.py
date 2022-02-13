@@ -1,10 +1,37 @@
+"""
+===============================================================================
+==================================<[ Ideas ]>==================================
+===============================================================================
 
+> Call eval after move generation
+    > use king safety in move gen to advantage
+    
+> is this 2 seperate scores for white and black 
+ or is it a combined score indicating who is ahead? (think 2nd is better)    
+        
+    
 
+Areas of evaluation:
+    Basic:
+        > piece score
+        > active/optimal piece placement
+        
+    Intermediate:
+        > pawn structure
+        > attackers
+        > defenders
+        > protectees(?)
+        
+    Advanced:
+        > board space
+        > xray
 
-class evaluation():
+"""
+def evaluation(gs):
     """
-    [--< Critical tooptermisation >--]
-    The evaluation class handles evaluating a postion
+    [--< Critical to optermisation >--]
+    The evaluation function handles evaluating a postion
+    
     
     The method to evaluate it tbd:
         evaluate the whole position every time?
@@ -18,27 +45,11 @@ class evaluation():
         
     Outputs:
         > evac score of board
-            is this 2 seperate scores for white and black 
-            or is it a combined score indicating who is ahead
-        
-        
-    
+            
 
-    Areas of evaluation:
-        Basic:
-            > piece score
-            > active/optimal piece placement
-            
-        Intermediate:
-            > pawn structure
-            > attackers
-            > defenders
-            > protectees(?)
-            
-        Advanced:
-            > board space
-            > xray
         
     """
-    def __init__(self):
+    def basic_p_count():
+        "Counts board peices"
         pass
+    pass

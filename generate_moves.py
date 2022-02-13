@@ -59,7 +59,7 @@ class moves():
         
         self.castle_rights = castle_rights
         
-        self.pawn_moves, self.pawn_captures, self.pos_en_passant_cap = self.gen_pawn_moves(self.primary_bb[0])
+        self.pawn_moves, self.pawn_captures, self.pos_en_passant_cap, self.promotion_moves = self.gen_pawn_moves(self.primary_bb[0])
         self.rook_moves, self.rook_captures = self.gen_rook_moves(self.primary_bb[3])
         self.bishop_moves, self.bishop_captures = self.gen_bishop_moves(self.primary_bb[2])
         self.knight_moves, self.knight_captures = self.gen_knight_moves(self.primary_bb[1])
@@ -172,7 +172,8 @@ class moves():
     def gen_pawn_moves(self,pawn_bb):
         moves = {}
         captures = {}
-        pos_en_passant_cap = {} 
+        pos_en_passant_cap = {}
+        pos_promotion = {}
         possible_moves = np.zeros(64,dtype='byte')
             
         
@@ -187,12 +188,12 @@ class moves():
         for i in pawn_bb.nonzero()[0]: # for each piece
             p_move = []
             capture = []
+            promotion = []
             # move forward
             fwd_1 = i + col_con*8
             if self.occupancy[fwd_1] == 0:
                 p_move.append(fwd_1)
                 possible_moves[fwd_1] = 1 # 1 square forward
-                
             
                 if i // 8 == 3.5 - 2.5*col_con: # check starting square 
                     fwd_2 = i + col_con*8*2
@@ -200,6 +201,10 @@ class moves():
                         p_move.append(fwd_2)
                         possible_moves[fwd_2] = 1 # 2 possible 
                         self.next_en_passant.append((i,fwd_2))
+                        
+                elif fwd_1 // 8 == 3.5 + 3.5*col_con: # check final rank
+                    promotion.append(fwd_1)
+                    
                         
             # captures 
             def get_captures():
@@ -209,9 +214,10 @@ class moves():
                             p_move.append(diag)
                             capture.append(diag)
                             pos_en_passant_cap[i] = diag
+                
                 # normal captures
-                if i % 8 in [0,7]:
-                    # edge of board: 
+                if i % 8 in [0,7]: # edge of board: 
+                    
                     if i % 8 == 0:
                         diag = i + col_con*(8 + col_con)
                     else:
@@ -220,16 +226,19 @@ class moves():
                     if self.opp_pieces[diag] == 1: # if capature is possible
                             p_move.append(diag)
                             capture.append(diag)
-                            
+                            if diag // 8 == 3.5 + 3.5*col_con: # check final rank
+                                promotion.append(diag)
+                                
                     if (diag - 8*col_con == self.en_pass): # en passant
                             en_passant(diag)
-                else:
+                else: # middle of board
                     for diag in pos_cap:
                         diag = i + diag*col_con
-                        if self.opp_pieces[diag] == 1:
+                        if self.opp_pieces[diag] == 1: # capture is possible
                             p_move.append(diag)
                             capture.append(diag)
-                            
+                            if diag // 8 == 3.5 + 3.5*col_con: # check final rank
+                                promotion.append(diag)
                         if (diag - 8*col_con == self.en_pass):
                             en_passant(diag)
 
@@ -241,9 +250,10 @@ class moves():
             
             moves[i] = p_move # adds moves to list of possible moves
             captures[i] = capture
+            pos_promotion[i] = promotion 
             
             
-        return moves, captures, pos_en_passant_cap
+        return moves, captures, pos_en_passant_cap, pos_promotion
     
     def gen_rook_moves(self,rook_bb):
         moves = {}
@@ -343,10 +353,10 @@ class moves():
             else:
                 basic_moves = [i for i in basic_moves if i not in [7,8,9]]
         if col in [0,7]: # side of board 
-            if row == 0:
-                basic_moves = [i for i in basic_moves if i not in [1,-7,9]]
-            else:
+            if col == 0:
                 basic_moves = [i for i in basic_moves if -i not in [1,-7,9]]
+            else:
+                basic_moves = [i for i in basic_moves if i not in [1,-7,9]]
         
         p_moves = []
         p_captures = []
@@ -508,6 +518,15 @@ class moves():
             col_con = (1 if self.w_to_move else -1)*(-1 if attack else 1)
             for i in [7,9]:
                 ind = start + i*col_con
+                
+                # edge of board
+                if (start % 8 == 7) & (ind % 8 != 6):
+                    continue
+                if (start % 8 == 0) & (ind % 8 != 1):
+                    continue
+                if start // 8 == 3.5 + 3.5*col_con:
+                    continue
+                
                 if attack_bb[0][ind] == 1:
                     check[ind] = [ind]
         

@@ -71,7 +71,7 @@ class game_state():
             # 0 - normal, 1 - check, 2 - checkmate, 3 - stalemate
         self.white_status = 0 
         self.black_status = 0
-        
+        self.status = 0
         
         self.gen_moves() # generate the first set of moves
         
@@ -128,32 +128,35 @@ class game_state():
         move_class = gm.moves(self.white_bit_boards,self.black_bit_boards,\
                               self.w_to_move,self.en_pass,castle_rights)
         self.moves = move_class.all_moves
+        
+        # temp solution to remove empty move lists
+        self.moves = {k: v for k, v in self.moves.items() if len(v)!=0} 
+        print(self.moves)
         self.pos_en_pass = move_class.next_en_passant # possible en passant next turn
         self.en_pass_cap = move_class.pos_en_passant_cap # possible en passent this turn
-        
+        self.promotion = move_class.promotion_moves # promotion moves
+        self.promotion = {k: v for k, v in self.promotion.items() if len(v)!=0}
         
         # update game state status
-        if any(self.moves.values()): # moves avaliable
+
+        if len(self.moves.values()) != 0: # moves avaliable
             if len(move_class.check) > 0:
-                status = 1
-                print("Check")
+                status = 1 # check
             else:
-                status = 0    
-        else: # Checkmate / Stalemate
+                status = 0 # Normal  
+        else:
             if len(move_class.check) > 0:
-                status = 2
-                print("Checkmate")
+                status = 2 # checkmate   
             else:
-                status = 3
-                print("Stalemate")  
+                status = 3 # stalemate
+            self.status = status
                 
-        # 0 - normal, 1 - check, 2 - checkmate, 3 - stalemate
+        
         if self.w_to_move:
             self.white_status = status
         else:
             self.black_status = status
  
-        #print(self.white_status,self.black_status)
  
     def make_move(self,start,end):
         "Makes move on the board"
@@ -176,12 +179,12 @@ class game_state():
     
     def update_bitboards(self,start,end):
         # could be optermised by setting primary and opponent bitboard? maybe not worth
-        for bitboard in self.piece_bit_boards:
+        for bitboard in self.piece_bit_boards: # capture
             if bitboard[end] == 1:
                 bitboard[end] = 0
                 break
             
-        for bitboard in self.piece_bit_boards:
+        for bitboard in self.piece_bit_boards: # move
             if bitboard[start] == 1: 
                 # moves
                 bitboard[start] = 0
@@ -195,6 +198,16 @@ class game_state():
                         bitboard[end-8] = 0
                     else:
                         bitboard[end+8] = 0
+                         
+        if start in self.promotion: # promotion
+            if self.w_to_move:
+                self.white_bit_boards[0][end] = 0 # Pawn BB
+                self.white_bit_boards[4][end] = 1 # Queen BB
+            else:
+                self.black_bit_boards[0][end] = 0 # Pawn BB
+                self.black_bit_boards[4][end] = 1 # Queen BB
+                
+            
                 
 
 # %% testing class features

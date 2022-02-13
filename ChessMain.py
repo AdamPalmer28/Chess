@@ -8,13 +8,16 @@ Notes / Plans
 =============
     > Add detail to top ribben
 """
-
+# %% Imports / Intialising 
 import numpy as np
 import pygame as p
 import sys
 from pygame.locals import *
+import time
 
 import Chess_engine
+import AdderBot # chess bot
+
 
 # board attributes
 width = height = 768
@@ -33,9 +36,19 @@ def load_images():
         for peice in peices:
             images[col + peice] = p.transform.scale(p.image.load('images/{}{}.png'.format(col,peice)),(sq_size,sq_size))
 
-def main():
-    p.init()
+# %% main
+def main(white =0,black = 0):
+    """
+    Runs the chess program connecting the pygame UI to the chess engine
     
+    white : binary
+    black : binary
+    
+    0 = AI
+    1 = Human
+    """
+    p.init()
+
     screen = p.display.set_mode((width,height+top_rib))
     clock = p.time.Clock()
     screen.fill(p.Color("#1f1c1c"))
@@ -46,8 +59,32 @@ def main():
     draw_board_state(screen,gs)# Initialise the board
     selected_piece = 0
     
+    AI_turn = False
+    if (white == 0) or (black == 0):
+        if (white == 0) and (black == 0):
+            AI_turn = True
+        elif (white == 0):
+            AI_turn = 'w'
+        elif (black == 0):
+            AI_turn = 'b'
+
+    
     running = True
     while running:
+        next_turn = ("w" if gs.w_to_move else "b") 
+        
+        if (AI_turn == True) or (AI_turn == next_turn):
+            # not sure if there is a better place to put this?
+            # call AI bot
+            #time.sleep(0.5)
+            if gs.status == 0:
+                AI_move = AdderBot.rando_bot(gs.moves)
+                gs.make_move(AI_move[0],AI_move[1])
+                draw_board_state(screen,gs,None)
+            else:
+                #print("Game over!")
+                pass
+
         for e in p.event.get():
             
             if e.type == p.QUIT:
@@ -64,45 +101,52 @@ def main():
                 if row < 0:
                     # Clicked Ribben area!!!
                     continue
-                next_turn = ("w" if gs.w_to_move else "b")  
-                    
-                if (selected_piece == 0):
-                    # first click - selecting piece
-                    if (gs.display[7-int(row),int(col)]!=0) and (gs.display[7-int(row),int(col)][0]==next_turn):
-                        
-                        def first_click():
-                            selected_piece = gs.display[7-int(row),int(col)]
-                            start_index = int((7-row)*8 + col)
-                            try:
-                                p_moves = gs.moves[start_index]
-                                #print(p_moves) # feedback
-                            except KeyError:
-                                p_moves = []
-                            draw_board_state(screen,gs,start_index,p_moves)
-                            return selected_piece,start_index,p_moves
-                        
-                        selected_piece,start_index, p_moves = first_click()
+                
+                
+                # Interactive with board
+                
+                if (AI_turn == True) or (AI_turn == next_turn):
+                    # AI turn
+                    pass
                 else:
-                    # second click - move command
-                    
-                    if (gs.display[7-int(row),int(col)]!= 0) and (gs.display[7-int(row),int(col)][0] == next_turn):
-                        # if same colour selected recall first_click
-                        selected_piece,start_index, p_moves = first_click()
-                        continue
-                    
-                    end_index = int((7-row)*8 + col)
-                    
-                    if end_index in p_moves: # avaliable move
-                        gs.make_move(start_index,end_index) # make move
-                        selected_piece = 0 # reset selected piece
-                        draw_board_state(screen,gs,None)
-         
+                     
+                    if (selected_piece == 0):
+                        # first click - selecting piece
+                        if (gs.display[7-int(row),int(col)]!=0) and (gs.display[7-int(row),int(col)][0]==next_turn):
+                            
+                            def first_click():
+                                selected_piece = gs.display[7-int(row),int(col)]
+                                start_index = int((7-row)*8 + col)
+                                try:
+                                    p_moves = gs.moves[start_index]
+                                    #print(p_moves) # feedback
+                                except KeyError:
+                                    p_moves = []
+                                draw_board_state(screen,gs,start_index,p_moves)
+                                return selected_piece,start_index,p_moves
+                            
+                            selected_piece,start_index, p_moves = first_click()
+                    else:
+                        # second click - move command
+                        
+                        if (gs.display[7-int(row),int(col)]!= 0) and (gs.display[7-int(row),int(col)][0] == next_turn):
+                            # if same colour selected recall first_click
+                            selected_piece,start_index, p_moves = first_click()
+                            continue
+                        
+                        end_index = int((7-row)*8 + col)
+                        
+                        if end_index in p_moves: # avaliable move
+                            gs.make_move(start_index,end_index) # make move
+                            selected_piece = 0 # reset selected piece
+                            draw_board_state(screen,gs,None)
+                            #print(gs.moves)
             
         clock.tick(max_fps)
         p.display.flip()
         
         
-        
+# %% Draw Board state        
         
 def draw_board_state(screen,gs,start_index=None,moves=None):
     
@@ -115,8 +159,7 @@ def draw_board_state(screen,gs,start_index=None,moves=None):
         col = start_index - (8*(7-row))   
         
         # highlights sq selected and avaliable moves
-        highlight_square(screen,row,col,moves)
-     
+        highlight_square(screen,row,col,moves)   
     
 def draw_board(screen):
     colors = [p.Color("White"),p.Color("#5e1106")]
@@ -148,12 +191,15 @@ def highlight_square(screen,row,col,moves=None):
         screen.blit(t,(c*sq_size,r*sq_size+top_rib))
 
 
+# %% UI features  
+
 # ribben infomation
 p.font.init() # you have to call this at the start, 
 ribbon_font = p.font.SysFont('Arial', 36)
 ribbon_bold = p.font.SysFont('Arial', 36)
 ribbon_bold.set_bold(True)
 end_screen_font = p.font.SysFont('Arial', 72)   
+
 def draw_ribben(screen,gs):
     p.draw.rect(screen,'#9A9A9A',p.Rect(0,0,width,top_rib))
     p.draw.rect(screen,"#5e1106",p.Rect(10,top_rib/16,192,top_rib-top_rib/8))
@@ -168,54 +214,53 @@ def draw_ribben(screen,gs):
         if gs.white_status != 0:
             # check / checkmate / stalemate
             status_update(screen,gs.white_status, 'Black')
-
     else:
         textsurface = ribbon_font.render('Black', True, (0, 0, 0))
         p.draw.rect(screen,"Black",p.Rect(210,top_rib/16,top_rib-top_rib/8,top_rib-top_rib/8))
         if gs.black_status != 0:
             status_update(screen,gs.black_status, 'White')
-
-    
+            
     screen.blit(textsurface,(120,top_rib/4))  
 
 
 ribbon_check = p.font.SysFont('Arial', 60)
- 
 
 def status_update(screen,status, attacker):
     # check / checkmate / stalemate
     if status == 1:
         check(screen)
     elif status == 2:
-        checkmate(screen,'Black')
+        checkmate(screen,attacker)
     else:
         stalemate(screen)
     
-def check(screen):
-    textsurface = ribbon_check.render('Check', True, (94,17,6))
-    screen.blit(textsurface,(width/2 - 64,top_rib/6)) 
+def check(screen): # Check GFX
+    textsurface = ribbon_check.render('Check', True, (128,17,6))#r=94
+    screen.blit(textsurface,(width/2 - 56,top_rib/7)) 
 
 end_screen_font = p.font.SysFont('Arial', 54)  
-def checkmate(screen,winner):
+def checkmate(screen,winner): # Checkmate GFX
     p.draw.rect(screen,'Black',p.Rect(192/2,(height-top_rib)/2,width-192, 256)) # outter retangle
     p.draw.rect(screen,"White",p.Rect(192/2 + 8,(height-top_rib)/2 +8 ,width-192-16, 256 -16)) # inner retangle
     end_text = end_screen_font.render(winner + ' wins by checkmate!', True, (0, 0, 0))
     screen.blit(end_text,(192/2 + 32,(height-top_rib)/2 + 100))
-    
 
-def stalemate(screen):
+def stalemate(screen): # Stalemate GFX  
     p.draw.rect(screen,'Black',p.Rect(192/2,(height-top_rib)/2,width-192, 256)) # outter retangle
     p.draw.rect(screen,"White",p.Rect(192/2 + 8,(height-top_rib)/2 +8 ,width-192-16, 256 -16)) # inner retangle
     end_text = end_screen_font.render('Draw by Stalemate', True, (0, 0, 0))
     screen.blit(end_text,(192/2 + 100,(height-top_rib)/2 + 100))
     
-        
+
+# %% Start program    ( if __name__ == '__main__' )  
         
 if __name__ == '__main__':
-    # for my visulisation
-    ref_matrix = np.arange(64).reshape(8,8)[::-1,]
+    ref_matrix = np.arange(64).reshape(8,8)[::-1,]# for my visulisation
     
-    main()
+    w_player = 0 
+    b_player = 0
+    # 1 = human, 0 = AI
+    main(white = w_player, black = b_player)
 
     
 
