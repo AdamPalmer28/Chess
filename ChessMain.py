@@ -16,8 +16,8 @@ from pygame.locals import *
 import time
 
 import Chess_engine
-import AdderBot # chess bot
-
+import AdderBot # Chess bot
+import eval_calc # eval file
 
 # board attributes
 width = height = 768
@@ -37,6 +37,11 @@ def load_images():
             images[col + peice] = p.transform.scale(p.image.load('images/{}{}.png'.format(col,peice)),(sq_size,sq_size))
 
 # %% main
+
+data_list = []
+
+
+
 def main(white =0,black = 0):
     """
     Runs the chess program connecting the pygame UI to the chess engine
@@ -73,19 +78,25 @@ def main(white =0,black = 0):
     while running:
         next_turn = ("w" if gs.w_to_move else "b") 
         
-        if (AI_turn == True) or (AI_turn == next_turn):
+        if (AI_turn == True) or (AI_turn == next_turn):  # AI bot
             # not sure if there is a better place to put this?
-            # call AI bot
+            
             #time.sleep(0.5)
             if gs.status == 0:
-                AI_move = AdderBot.rando_bot(gs.moves)
+                #AI_move = AdderBot.rando_bot(gs.moves)
+                AI_move = AdderBot.simple_bot(gs)
                 gs.make_move(AI_move[0],AI_move[1])
                 draw_board_state(screen,gs,None)
+                #print(evac.evaluation(gs))
+                data_list.append(sys.getsizeof(gs.moves))
             else:
                 #print("Game over!")
+                #running = False
                 pass
 
-        for e in p.event.get():
+
+        "game events"
+        for e in p.event.get(): 
             
             if e.type == p.QUIT:
                 p.quit()
@@ -93,7 +104,8 @@ def main(white =0,black = 0):
 
                 running = False
                 
-            elif e.type == p.MOUSEBUTTONDOWN:# moves
+            elif e.type == p.MOUSEBUTTONDOWN:# click on screen
+            
                 location = p.mouse.get_pos() # (x, y) location of mouse
                 
                 col = (location[0])//sq_size
@@ -104,7 +116,6 @@ def main(white =0,black = 0):
                 
                 
                 # Interactive with board
-                
                 if (AI_turn == True) or (AI_turn == next_turn):
                     # AI turn
                     pass
@@ -257,7 +268,7 @@ def stalemate(screen): # Stalemate GFX
 if __name__ == '__main__':
     ref_matrix = np.arange(64).reshape(8,8)[::-1,]# for my visulisation
     
-    w_player = 0 
+    w_player = 1 
     b_player = 0
     # 1 = human, 0 = AI
     main(white = w_player, black = b_player)

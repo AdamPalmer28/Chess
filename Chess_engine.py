@@ -127,14 +127,16 @@ class game_state():
         # generates moves
         move_class = gm.moves(self.white_bit_boards,self.black_bit_boards,\
                               self.w_to_move,self.en_pass,castle_rights)
+            
         self.moves = move_class.all_moves
-        
         # temp solution to remove empty move lists
         self.moves = {k: v for k, v in self.moves.items() if len(v)!=0} 
-        print(self.moves)
+        #print(self.moves)
         self.pos_en_pass = move_class.next_en_passant # possible en passant next turn
         self.en_pass_cap = move_class.pos_en_passant_cap # possible en passent this turn
         self.promotion = move_class.promotion_moves # promotion moves
+        
+        # temp solution to remove empty move lists
         self.promotion = {k: v for k, v in self.promotion.items() if len(v)!=0}
         
         # update game state status
@@ -169,10 +171,9 @@ class game_state():
         self.last_move = (start,end)
         self.w_to_move = not self.w_to_move # flips move 
         
-        self.get_game_postion()
+        self.get_game_postion() # not needed unless updating board status? maybe move to UI call
         
         # generate next set of moves
-        
         #t = time.time()
         self.gen_moves() 
         #print(np.round(time.time()-t,6))
@@ -213,5 +214,6 @@ class game_state():
 # %% testing class features
 if __name__ == '__main__': 
     gs = game_state() 
-    for i in gs.piece_dict.values():# without values() it prints keys
-        print(i)
+    
+    
+    

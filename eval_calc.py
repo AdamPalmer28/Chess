@@ -13,7 +13,9 @@
 
 Areas of evaluation:
     Basic:
-        > piece score
+        > piece score [Done]
+        > Checkmate / Stalemate:
+            > Stalemate
         > active/optimal piece placement
         
     Intermediate:
@@ -27,6 +29,8 @@ Areas of evaluation:
         > xray
 
 """
+import numpy as np
+
 def evaluation(gs):
     """
     [--< Critical to optermisation >--]
@@ -51,5 +55,24 @@ def evaluation(gs):
     """
     def basic_p_count():
         "Counts board peices"
-        pass
-    pass
+        score = 0
+        score += gs.w_pawns.sum() * 1
+        score += gs.w_knight.sum() * 3
+        score += gs.w_bishop.sum() * 3
+        score += gs.w_rook.sum() * 5
+        score += gs.w_queen.sum() * 9
+    
+        #gs.w_king = np.zeros(64,dtype='byte')
+        
+        score -= gs.b_pawns.sum() * 1
+        score -= gs.b_knight.sum() * 3
+        score -= gs.b_bishop.sum() * 3
+        score -= gs.b_rook.sum() * 5
+        score -= gs.b_queen.sum() * 9
+        
+        return score
+        #gs.b_king = np.zeros(64,dtype='byte')
+       
+    total_eval = basic_p_count()
+       
+    return total_eval
