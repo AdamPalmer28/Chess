@@ -9,7 +9,7 @@ def timer(func):
     def wrapper(*args):
         before = time.time()
         val = func(*args)
-        print("Function tooks:", np.round(time.time() - before,4), " seconds")
+        print("Function took:", np.round(time.time() - before,4), " seconds")
         return val
     return wrapper
 

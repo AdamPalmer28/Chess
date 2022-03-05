@@ -24,7 +24,12 @@ def timer(func):
         print("Function tooks:", np.round(time.time() - before,8), " seconds")  
     return wrapper
 
-
+def counted(f):
+    def wrapped(*args, **kwargs):
+        wrapped.calls += 1
+        return f(*args, **kwargs)
+    wrapped.calls = 0
+    return wrapped
 
 class game_state():        
 
@@ -65,9 +70,9 @@ class game_state():
         # advanced moves
         self.en_pass = None # possible en_pass moves
         
-        self.white_castle = (True,True)
-        self.black_castle = (True,True)
-            
+        self.w_castle = [True,True]
+        self.b_castle = [True,True]
+        
             # 0 - normal, 1 - check, 2 - checkmate, 3 - stalemate
         self.white_status = 0 
         self.black_status = 0
@@ -75,9 +80,18 @@ class game_state():
         
         self.gen_moves() # generate the first set of moves
         
+        self.move_count = 0
+        
+        self.move_log = []
+        
+        self.capture_log = {} # move_count : associated bb taken from 
+        self.special_move_log = {} # move_count : 0 - castle, 1 - promotion, 2 - enpassent 
+        self.castle_right_log = {} # move_count : castle_rights for move
+        self.en_pass_log = {}
+        
   
     def default_start(self):
-        # sets bits of pieces to correct postions
+        # sets bits of pieces to correct starting postions
         
         # white     
         self.w_pawns[8:16] = 1
@@ -101,7 +115,6 @@ class game_state():
         self.b_queen[-5] = 1
         self.b_king[-4] = 1
         
-        self.get_game_postion()
         
     #@timer   
     def get_game_postion(self):
@@ -120,28 +133,36 @@ class game_state():
     def gen_moves(self):
         "generates all legal moves"
         if self.w_to_move:
-            castle_rights = self.white_castle
+            self.castle_right = self.w_castle
         else:
-            castle_rights = self.black_castle
+            self.castle_right = self.b_castle
             
+        if sum((self.w_king)) + sum((self.b_king))!=2:
+            self.moves = {}
+            self.captures = {}
+            return    
         # generates moves
         move_class = gm.moves(self.white_bit_boards,self.black_bit_boards,\
-                              self.w_to_move,self.en_pass,castle_rights)
-            
+                              self.w_to_move,self.en_pass,self.castle_right)
+        
+        
         self.moves = move_class.all_moves
         # temp solution to remove empty move lists
+        
         self.moves = {k: v for k, v in self.moves.items() if len(v)!=0} 
-        #print(self.moves)
+        self.captures = move_class.all_captures
+        self.captures = {k: v for k, v in self.captures.items() if len(v)!=0} 
+        
         self.pos_en_pass = move_class.next_en_passant # possible en passant next turn
         self.en_pass_cap = move_class.pos_en_passant_cap # possible en passent this turn
         self.promotion = move_class.promotion_moves # promotion moves
         
-        # temp solution to remove empty move lists
+        # temp solution
         self.promotion = {k: v for k, v in self.promotion.items() if len(v)!=0}
         
         # update game state status
-
-        if len(self.moves.values()) != 0: # moves avaliable
+        
+        if len(self.moves) != 0: # moves avaliable
             if len(move_class.check) > 0:
                 status = 1 # check
             else:
@@ -151,62 +172,183 @@ class game_state():
                 status = 2 # checkmate   
             else:
                 status = 3 # stalemate
-            self.status = status
+        self.status = status
                 
         
         if self.w_to_move:
             self.white_status = status
         else:
             self.black_status = status
- 
+        
  
     def make_move(self,start,end):
         "Makes move on the board"
-        if (start,end) in self.pos_en_pass: # updates possible postion of en passant
+        
+        # move log stuff
+        self.move_count += 1    
+        self.move_log.append((start,end))  # update move log
+        self.castle_right_log[self.move_count -1] = [self.w_castle,self.b_castle]
+        self.en_pass_log[self.move_count] = self.en_pass
+        self.last_move = (start,end)
+        
+        if (start,end) in self.pos_en_pass:
             self.en_pass = end
         else:
             self.en_pass = None
         
+        if any(self.castle_right):
+            if self.w_to_move:
+                if start == 4:
+                    self.w_castle = [False,False]
+                elif start == 0 or end == 0:
+                    self.w_castle = [False,self.b_castle[1]]
+                elif start == 7 or end == 7:
+                    self.w_castle = [self.w_castle[0],False]
+            else:
+                if start == 60:
+                    self.b_castle = [False,False]
+                elif start == 56 or end == 56:
+                    self.b_castle = [False,self.b_castle[1]]
+                elif start == 63 or end == 63:
+                    self.b_castle = [self.b_castle[0],False]
+          
+        
         self.update_bitboards(start,end)
-        self.last_move = (start,end)
+        
         self.w_to_move = not self.w_to_move # flips move 
         
-        self.get_game_postion() # not needed unless updating board status? maybe move to UI call
-        
         # generate next set of moves
-        #t = time.time()
         self.gen_moves() 
-        #print(np.round(time.time()-t,6))
+        
+    #@counted
+    def undo_move(self):
+        if len(self.move_log)!=0:
+            self.w_to_move = not self.w_to_move
+            
+            self.w_castle,self.b_castle = self.castle_right_log[self.move_count-1] # castle rights before this turn
+            self.en_pass = self.en_pass_log[self.move_count] 
+            
+            start,end = self.move_log.pop()
+            for bitboard in self.piece_bit_boards: # move
+                if bitboard[end] == 1: 
+                    bitboard[end] = 0
+                    bitboard[start] = 1
+                    break
+            
+            if self.move_count in self.capture_log.keys(): # undo capture
+                self.piece_bit_boards[self.capture_log[self.move_count]][end] = 1
+                del self.capture_log[self.move_count]
+                
+            if self.move_count in self.special_move_log.keys():
+                value = self.special_move_log[self.move_count]
+                if value == 1: # promotion
+                    if self.w_to_move:
+                        self.white_bit_boards[0][start] = 1 # Pawn BB
+                        self.white_bit_boards[4][start] = 0 # Queen BB
+                    else:
+                        self.black_bit_boards[0][start] = 1 # Pawn BB
+                        self.black_bit_boards[4][start] = 0 # Queen BB
+                    
+                elif value == 2: # enpassent
+                    if self.w_to_move:
+                        self.b_pawns[end-8] = 1
+                    else:
+                        self.w_pawns[end+8] = 1
+                    
+                else: # castling
+                    if self.w_to_move:
+                        if end > start:
+                            self.white_bit_boards[3][7] = 1
+                            self.white_bit_boards[3][5] = 0
+                        else:
+                            self.white_bit_boards[3][0] = 1
+                            self.white_bit_boards[3][3] = 0
+                    else:
+                        if end > start:
+                            self.black_bit_boards[3][63] = 1
+                            self.black_bit_boards[3][61] = 0
+                        else:
+                            self.black_bit_boards[3][56] = 1
+                            self.black_bit_boards[3][59] = 0
+            
+                del self.special_move_log[self.move_count]
+                
+            self.move_count -= 1
+            
+            # generate next set of moves
+            self.gen_moves()
     
     def update_bitboards(self,start,end):
-        # could be optermised by setting primary and opponent bitboard? maybe not worth
-        for bitboard in self.piece_bit_boards: # capture
+        # castling
+        if any(self.castle_right) and abs(end - start) == 2:
+            if self.w_to_move:
+                if start == 4:# white castle move
+                
+                    self.white_bit_boards[5][start] = 0
+                    self.white_bit_boards[5][end] = 1
+                    
+                    if end - start < 0: # rook
+                        # long castle
+                        self.white_bit_boards[3][0] = 0
+                        self.white_bit_boards[3][end+1] = 1
+                    else:
+                        self.white_bit_boards[3][7] = 0
+                        self.white_bit_boards[3][end-1] = 1
+                        
+                    self.special_move_log[self.move_count] = 0 # move log
+                    return None
+            else:
+                if start == 60:# black castle move
+                
+                    self.black_bit_boards[5][start] = 0
+                    self.black_bit_boards[5][end] = 1
+                    
+                    if end - start < 0: # rook
+                        # long castle
+                        self.black_bit_boards[3][56] = 0
+                        self.black_bit_boards[3][end+1] = 1
+                    else:
+                        self.black_bit_boards[3][63] = 0
+                        self.black_bit_boards[3][end-1] = 1
+                        
+                    self.special_move_log[self.move_count] = 0 # move log
+                    return None
+        
+        # could be optermised by setting primary and opponent bitboard? maybe not worth        
+        for ind, bitboard in enumerate(self.piece_bit_boards): # capture
             if bitboard[end] == 1:
                 bitboard[end] = 0
+                self.capture_log[self.move_count] = ind # move log
                 break
             
         for bitboard in self.piece_bit_boards: # move
             if bitboard[start] == 1: 
-                # moves
                 bitboard[start] = 0
                 bitboard[end] = 1
                 break
-
-        if start in self.en_pass_cap : # en passant
+            
+        # en passant
+        if start in self.en_pass_cap: 
             if self.en_pass_cap[start] == end:
-                for bitboard in self.piece_bit_boards:
-                    if self.w_to_move:
-                        bitboard[end-8] = 0
-                    else:
-                        bitboard[end+8] = 0
-                         
-        if start in self.promotion: # promotion
+                if self.w_to_move:
+                    self.b_pawns[end-8] = 0
+                else:
+                    self.w_pawns[end+8] = 0
+                        
+                self.special_move_log[self.move_count] = 2 # move log
+        
+        # promotion                 
+        if start in self.promotion: 
             if self.w_to_move:
                 self.white_bit_boards[0][end] = 0 # Pawn BB
                 self.white_bit_boards[4][end] = 1 # Queen BB
             else:
                 self.black_bit_boards[0][end] = 0 # Pawn BB
                 self.black_bit_boards[4][end] = 1 # Queen BB
+            
+            self.special_move_log[self.move_count] = 1 # move log
+                
+
                 
             
                 

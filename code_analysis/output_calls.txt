@@ -1,0 +1,178 @@
+Sat Mar  5 13:19:01 2022    code_analysis/output.dat
+
+         1151625 function calls (1150072 primitive calls) in 34.310 seconds
+
+   Ordered by: call count
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   345674    0.023    0.000    0.023    0.000 {built-in method builtins.len}
+   275033    0.023    0.000    0.023    0.000 {method 'append' of 'list' objects}
+    74148    0.092    0.000    0.092    0.000 {built-in method numpy.zeros}
+    71056    0.041    0.000    0.041    0.000 {method 'nonzero' of 'numpy.ndarray' objects}
+    61664    0.013    0.000    0.013    0.000 {built-in method builtins.min}
+    37062    0.152    0.000    0.152    0.000 D:\Documents\Coding\Chess\generate_moves.py:123(range_loop)
+    25516    0.003    0.000    0.003    0.000 {method 'items' of 'dict' objects}
+    24069    0.121    0.000    0.121    0.000 D:\Documents\Coding\Chess\generate_moves.py:210(get_captures)
+    23808    0.006    0.000    0.056    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\_methods.py:45(_sum)
+    23808    0.010    0.000    0.066    0.000 {method 'sum' of 'numpy.ndarray' objects}
+    23808    0.050    0.000    0.050    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+    15455    0.082    0.000    0.262    0.000 D:\Documents\Coding\Chess\generate_moves.py:111(sliding)
+    12350    0.647    0.000    0.707    0.000 D:\Documents\Coding\Chess\generate_moves.py:464(king_hv_diag_loop)
+     7092    0.001    0.000    0.001    0.000 {built-in method builtins.abs}
+     6301    0.006    0.000    0.006    0.000 D:\Documents\Coding\Chess\generate_moves.py:360(<genexpr>)
+     6295    0.001    0.000    0.001    0.000 {built-in method builtins.any}
+     6222    0.066    0.000    0.066    0.000 {built-in method builtins.sum}
+     6212    0.008    0.000    0.008    0.000 D:\Documents\Coding\Chess\generate_moves.py:351(<genexpr>)
+     6185    0.002    0.000    0.015    0.000 {built-in method builtins.all}
+     6175    0.090    0.000    0.920    0.000 D:\Documents\Coding\Chess\generate_moves.py:399(king_safety)
+     6175    0.023    0.000    0.028    0.000 D:\Documents\Coding\Chess\generate_moves.py:429(knight_attacks)
+     6175    0.064    0.000    0.064    0.000 D:\Documents\Coding\Chess\generate_moves.py:533(pawn_attacks)
+     3111    0.023    0.000    1.892    0.001 D:\Documents\Coding\Chess\Chess_engine.py:133(gen_moves)
+     3111    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+     3110    0.005    0.000    0.005    0.000 {built-in method numpy.array}
+     3107    0.062    0.000    0.559    0.000 D:\Documents\Coding\Chess\generate_moves.py:332(gen_king_moves)
+     3107    0.158    0.000    0.295    0.000 D:\Documents\Coding\Chess\generate_moves.py:172(gen_pawn_moves)
+     3107    0.014    0.000    0.097    0.000 D:\Documents\Coding\Chess\generate_moves.py:258(gen_rook_moves)
+     3107    0.013    0.000    0.128    0.000 D:\Documents\Coding\Chess\generate_moves.py:268(gen_bishop_moves)
+     3107    0.065    0.000    1.771    0.001 D:\Documents\Coding\Chess\generate_moves.py:29(__init__)
+     3107    0.004    0.000    0.005    0.000 D:\Documents\Coding\Chess\Chess_engine.py:161(<dictcomp>)
+     3107    0.007    0.000    0.011    0.000 D:\Documents\Coding\Chess\Chess_engine.py:154(<dictcomp>)
+     3107    0.011    0.000    0.014    0.000 D:\Documents\Coding\Chess\Chess_engine.py:152(<dictcomp>)
+     3107    0.009    0.000    0.095    0.000 D:\Documents\Coding\Chess\generate_moves.py:320(gen_queen_moves)
+     3107    0.050    0.000    0.074    0.000 D:\Documents\Coding\Chess\generate_moves.py:278(gen_knight_moves)
+     3081    0.003    0.000    0.003    0.000 D:\Documents\Coding\Chess\generate_moves.py:294(<listcomp>)
+     2926    0.001    0.000    0.001    0.000 D:\Documents\Coding\Chess\generate_moves.py:302(<listcomp>)
+     2343    0.002    0.000    0.002    0.000 D:\Documents\Coding\Chess\generate_moves.py:433(<listcomp>)
+     2270    0.001    0.000    0.001    0.000 D:\Documents\Coding\Chess\generate_moves.py:300(<listcomp>)
+     2110    0.002    0.000    0.002    0.000 D:\Documents\Coding\Chess\generate_moves.py:296(<listcomp>)
+     1674    0.002    0.000    0.002    0.000 D:\Documents\Coding\Chess\generate_moves.py:439(<listcomp>)
+     1581    0.001    0.000    0.001    0.000 D:\Documents\Coding\Chess\generate_moves.py:441(<listcomp>)
+     1556    0.028    0.000    0.028    0.000 D:\Documents\Coding\Chess\Chess_engine.py:281(update_bitboards)
+     1556    0.012    0.000    0.903    0.001 D:\Documents\Coding\Chess\Chess_engine.py:184(make_move)
+     1556    0.002    0.000    0.002    0.000 D:\Documents\Coding\Chess\generate_moves.py:370(<listcomp>)
+     1554    0.018    0.000    1.048    0.001 D:\Documents\Coding\Chess\Chess_engine.py:224(undo_move)
+     1554    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+     1549    0.002    0.000    0.002    0.000 D:\Documents\Coding\Chess\generate_moves.py:372(<listcomp>)
+1488/1073    0.004    0.000    0.720    0.001 D:\Documents\Coding\Chess\AdderBot.py:31(quiesce)
+     1488    0.004    0.000    0.132    0.000 D:\Documents\Coding\Chess\eval_calc.py:47(evaluation)
+     1488    0.016    0.000    0.030    0.000 D:\Documents\Coding\Chess\eval_calc.py:104(knight_pos)
+     1488    0.002    0.000    0.133    0.000 D:\Documents\Coding\Chess\eval_calc.py:41(wrapped)
+     1488    0.025    0.000    0.046    0.000 D:\Documents\Coding\Chess\eval_calc.py:89(bishop_pos)
+     1488    0.022    0.000    0.052    0.000 D:\Documents\Coding\Chess\eval_calc.py:73(basic_p_count)
+   1138/3    0.005    0.000    2.087    0.696 D:\Documents\Coding\Chess\AdderBot.py:64(alphabeta)
+     1031    0.001    0.000    0.001    0.000 {method 'intersection' of 'set' objects}
+      828    0.003    0.000    0.003    0.000 {built-in method pygame.draw.rect}
+      572    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:435(<listcomp>)
+      449    0.068    0.000    0.068    0.000 {method 'blit' of 'pygame.Surface' objects}
+      260    0.053    0.000    0.053    0.000 {built-in method pygame.event.get}
+      259   31.798    0.123   31.798    0.123 {method 'tick' of 'Clock' objects}
+      259    0.149    0.001    0.149    0.001 {built-in method pygame.display.flip}
+  174/171    0.000    0.000    0.000    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
+      144    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\multiarray.py:321(where)
+      144    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(where)
+       78    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+       76    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+       44    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+       38    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\threading.py:513(is_set)
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\threading.py:1017(_wait_for_tstate_lock)
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\threading.py:1071(is_alive)
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\ipykernel\iostream.py:93(_event_pipe)
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\ipykernel\iostream.py:197(schedule)
+       36    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\zmq\sugar\socket.py:432(send)
+       36    0.000    0.000    0.000    0.000 {method 'append' of 'collections.deque' objects}
+       36    0.000    0.000    0.000    0.000 {method 'acquire' of '_thread.lock' objects}
+       36    0.001    0.000    0.001    0.000 {method 'render' of 'pygame.font.Font' objects}
+       35    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:306(<listcomp>)
+       34    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:521(<listcomp>)
+       30    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\ipykernel\iostream.py:310(_is_master_process)
+       30    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\ipykernel\iostream.py:323(_schedule_flush)
+       30    0.000    0.000    0.001    0.000 C:\Users\Adam\anaconda3\lib\site-packages\ipykernel\iostream.py:386(write)
+       30    0.000    0.000    0.000    0.000 {built-in method nt.getpid}
+       30    0.000    0.000    0.000    0.000 {method 'fill' of 'pygame.Surface' objects}
+       29    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:494(<listcomp>)
+       29    0.000    0.000    0.000    0.000 {method 'set_alpha' of 'pygame.Surface' objects}
+       28    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+       28    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+       27    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:52(_wrapfunc)
+       24    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:194(_reshape_dispatcher)
+       24    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:199(reshape)
+       24    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(reshape)
+       24    0.000    0.000    0.000    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+       24    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+       23    0.000    0.000    0.001    0.000 D:\Documents\Coding\Chess\ChessMain.py:210(highlight_square)
+       22    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:124(splitdrive)
+       18    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:34(_get_bothseps)
+       16    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:180(split)
+       16    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1564(_parents)
+       16    0.000    0.000    0.000    0.000 {method 'rstrip' of 'str' objects}
+       15    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+       14    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:2352(_is_egg_path)
+       14    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:2359(_is_zip_egg)
+       14    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:2367(_is_unpacked_egg)
+       12    0.001    0.000    0.001    0.000 D:\Documents\Coding\Chess\Chess_engine.py:120(get_game_postion)
+       12    0.001    0.000    0.003    0.000 D:\Documents\Coding\Chess\ChessMain.py:196(draw_board)
+       12    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\ChessMain.py:259(undo_button)
+       12    0.002    0.000    0.068    0.006 D:\Documents\Coding\Chess\ChessMain.py:203(draw_pieces)
+       12    0.000    0.000    0.076    0.006 D:\Documents\Coding\Chess\ChessMain.py:175(draw_board_state)
+       12    0.000    0.000    0.003    0.000 D:\Documents\Coding\Chess\ChessMain.py:237(draw_ribben)
+       12    0.000    0.000    0.000    0.000 {built-in method pygame.transform.scale}
+       12    0.002    0.000    0.002    0.000 {built-in method pygame.image.load}
+       11    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:288(<listcomp>)
+        9    0.000    0.000    0.001    0.000 {built-in method builtins.print}
+        8    0.000    0.000    0.000    0.000 {built-in method pygame.mouse.get_pos}
+        6    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:3195(_around_dispatcher)
+        6    0.000    0.000    0.000    0.000 {built-in method time.time}
+        5    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:308(<listcomp>)
+        4    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        4    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        3    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\_asarray.py:23(asarray)
+        3    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:39(_wrapit)
+        3    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:3199(around)
+        3    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:3709(round_)
+        3    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(around)
+        3    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(round_)
+        3    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\generate_moves.py:447(<listcomp>)
+        3    0.000    0.000    2.087    0.696 D:\Documents\Coding\Chess\AdderBot.py:57(alphabeta_search)
+        3    0.000    0.000    2.088    0.696 D:\Documents\Coding\Chess\AdderBot.py:15(wrapper)
+        3    0.000    0.000    0.019    0.006 D:\Documents\Coding\Chess\ChessMain.py:140(first_click)
+        3    0.000    0.000    0.000    0.000 {method 'round' of 'numpy.ndarray' objects}
+        3    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:61(isabs)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:77(join)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\ntpath.py:221(dirname)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\posixpath.py:41(_get_sep)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\posixpath.py:60(isabs)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\inspect.py:487(getmro)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:339(get_provider)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1377(__init__)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1472(_fn)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1478(_validate_resource_path)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1578(__init__)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1582(_setup_prefix)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:3143(_always_object)
+        2    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:3153(_find_adapter)
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.next}
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\genericpath.py:16(exists)
+        1    0.000    0.000    0.001    0.001 C:\Users\Adam\anaconda3\lib\site-packages\pygame\pkgdata.py:46(getResource)
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1118(resource_exists)
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1134(resource_stream)
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1390(has_resource)
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1598(_has)
+        1    0.000    0.000    0.000    0.000 C:\Users\Adam\anaconda3\lib\site-packages\pkg_resources\__init__.py:1607(get_resource_stream)
+        1    0.000    0.000    0.000    0.000 D:\Documents\Coding\Chess\Chess_engine.py:93(default_start)
+        1    0.000    0.000    0.001    0.001 D:\Documents\Coding\Chess\Chess_engine.py:36(__init__)
+        1    0.005    0.005   34.310   34.310 D:\Documents\Coding\Chess\ChessMain.py:48(main)
+        1    0.000    0.000   34.310   34.310 <string>:1(<module>)
+        1    0.000    0.000    0.003    0.003 D:\Documents\Coding\Chess\ChessMain.py:38(load_images)
+        1    0.000    0.000    0.000    0.000 {built-in method nt.stat}
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+        1    0.000    0.000   34.310   34.310 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {built-in method sys.exit}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method pygame.time.Clock}
+        1    0.013    0.013    0.014    0.014 {built-in method pygame.display.set_mode}
+        1    0.078    0.078    0.078    0.078 {built-in method pygame.base.init}
+        1    0.039    0.039    0.039    0.039 {built-in method pygame.base.quit}
+
+

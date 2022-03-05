@@ -15,16 +15,22 @@ import sys
 from pygame.locals import *
 import time
 
+
+# chess modules
 import Chess_engine
 import AdderBot # Chess bot
 import eval_calc # eval file
+
+# UI 
+from UI import board_gfx as gfx
 
 # board attributes
 width = height = 768
 top_rib = 96
 dimensions = 8
 sq_size = height / dimensions 
-max_fps = 15
+max_fps = 8
+
 
 
 # chess pieces
@@ -35,14 +41,11 @@ def load_images():
     for col in colour:
         for peice in peices:
             images[col + peice] = p.transform.scale(p.image.load('images/{}{}.png'.format(col,peice)),(sq_size,sq_size))
-
+    
 # %% main
 
-data_list = []
 
-
-
-def main(white =0,black = 0):
+def main(white =0,black = 0,AI_depth=2):
     """
     Runs the chess program connecting the pygame UI to the chess engine
     
@@ -73,6 +76,7 @@ def main(white =0,black = 0):
         elif (black == 0):
             AI_turn = 'b'
 
+    track = 0
     
     running = True
     while running:
@@ -82,13 +86,16 @@ def main(white =0,black = 0):
             # not sure if there is a better place to put this?
             
             #time.sleep(0.5)
-            if gs.status == 0:
-                #AI_move = AdderBot.rando_bot(gs.moves)
-                AI_move = AdderBot.simple_bot(gs)
+            if gs.status == 0 or gs.status == 1:
+                print("AI searching for the \"best\" move")
+                AI_move = AdderBot.alphabeta_search(gs,AI_depth)
+                
                 gs.make_move(AI_move[0],AI_move[1])
+                
+                print("AI evaluated {} different postions \n".format(eval_calc.evaluation.calls-track))
+                track = eval_calc.evaluation.calls
+                
                 draw_board_state(screen,gs,None)
-                #print(evac.evaluation(gs))
-                data_list.append(sys.getsizeof(gs.moves))
             else:
                 #print("Game over!")
                 #running = False
@@ -101,9 +108,8 @@ def main(white =0,black = 0):
             if e.type == p.QUIT:
                 p.quit()
                 sys.exit()
-
                 running = False
-                
+
             elif e.type == p.MOUSEBUTTONDOWN:# click on screen
             
                 location = p.mouse.get_pos() # (x, y) location of mouse
@@ -112,11 +118,17 @@ def main(white =0,black = 0):
                 row = (location[1]-top_rib)//sq_size
                 if row < 0:
                     # Clicked Ribben area!!!
-                    continue
-                
+                    
+                    # Undo button
+                    if (location[0] <= width) & (location[0] > 680):
+                        # boundaries aren't very good
+                        if len(gs.move_log)!=0:
+                            gs.undo_move()
+                            gs.undo_move()
+                            draw_board_state(screen,gs,None)
                 
                 # Interactive with board
-                if (AI_turn == True) or (AI_turn == next_turn):
+                elif (AI_turn == True) or (AI_turn == next_turn):
                     # AI turn
                     pass
                 else:
@@ -151,16 +163,17 @@ def main(white =0,black = 0):
                             gs.make_move(start_index,end_index) # make move
                             selected_piece = 0 # reset selected piece
                             draw_board_state(screen,gs,None)
-                            #print(gs.moves)
+                            #print(gs.captures)
             
         clock.tick(max_fps)
         p.display.flip()
+    #return
         
         
 # %% Draw Board state        
         
 def draw_board_state(screen,gs,start_index=None,moves=None):
-    
+    gs.get_game_postion()
     draw_board(screen) # draws square on the board
     draw_pieces(screen,gs.display) # draws pieces
     draw_ribben(screen,gs)
@@ -170,7 +183,15 @@ def draw_board_state(screen,gs,start_index=None,moves=None):
         col = start_index - (8*(7-row))   
         
         # highlights sq selected and avaliable moves
-        highlight_square(screen,row,col,moves)   
+        highlight_square(screen,row,col,'blue',moves)
+      
+    # highlight last move
+    s_last, e_last = gs.last_move
+    if s_last != 0 and e_last != 0:
+        for i in [s_last, e_last]:
+            row = 7 - i // 8 
+            col = i - (8*(7-row))   
+            highlight_square(screen,row,col,'blue',[],90)
     
 def draw_board(screen):
     colors = [p.Color("White"),p.Color("#5e1106")]
@@ -186,11 +207,11 @@ def draw_pieces(screen,board):
             if piece != 0:
                 screen.blit(images[piece],p.Rect((c)*sq_size,(7-r)*sq_size+top_rib,sq_size,sq_size,))
             
-def highlight_square(screen,row,col,moves=None):
+def highlight_square(screen,row,col,colour='blue',moves=None,alpha=75):
     
     s=p.Surface((sq_size,sq_size))
-    s.set_alpha(75) # transperacy value
-    s.fill(p.Color('blue'))
+    s.set_alpha(alpha) # transperacy value
+    s.fill(p.Color(colour))
     screen.blit(s,(col*sq_size,row*sq_size + top_rib))
     
     for m in moves:
@@ -200,11 +221,13 @@ def highlight_square(screen,row,col,moves=None):
         t.set_alpha(150) # transperacy value
         t.fill(p.Color('yellow'))
         screen.blit(t,(c*sq_size,r*sq_size+top_rib))
+        
+
 
 
 # %% UI features  
 
-# ribben infomation
+#ribben infomation
 p.font.init() # you have to call this at the start, 
 ribbon_font = p.font.SysFont('Arial', 36)
 ribbon_bold = p.font.SysFont('Arial', 36)
@@ -233,6 +256,13 @@ def draw_ribben(screen,gs):
             
     screen.blit(textsurface,(120,top_rib/4))  
 
+    def undo_button(screen):
+        p.draw.rect(screen,"Black",p.Rect(680,top_rib/16,top_rib-top_rib/8,top_rib-top_rib/8))
+        textsurface = ribbon_font.render('Undo', True, (128,17,6))#r=94
+        screen.blit(textsurface,(690,top_rib/4)) 
+        
+    undo_button(screen)
+        
 
 ribbon_check = p.font.SysFont('Arial', 60)
 
@@ -263,6 +293,8 @@ def stalemate(screen): # Stalemate GFX
     screen.blit(end_text,(192/2 + 100,(height-top_rib)/2 + 100))
     
 
+
+
 # %% Start program    ( if __name__ == '__main__' )  
         
 if __name__ == '__main__':
@@ -271,7 +303,26 @@ if __name__ == '__main__':
     w_player = 1 
     b_player = 0
     # 1 = human, 0 = AI
-    main(white = w_player, black = b_player)
+
+    #main(white = w_player, black = b_player)
+    
+    # == Optermisation ==
+    import cProfile
+    import pstats
+    #from pstats import SortKey
+    
+    cProfile.run("main(white = w_player, black = b_player)", "code_analysis/output.dat")
+    
+    
+    with open("code_analysis/output_time.txt","w") as f:
+        p = pstats.Stats("code_analysis/output.dat", stream=f)
+        p.sort_stats("time").print_stats()
+    
+    with open("code_analysis/output_calls.txt","w") as f:
+        p = pstats.Stats("code_analysis/output.dat", stream=f)
+        p.sort_stats("calls").print_stats()
+
+    
 
     
 

@@ -69,6 +69,7 @@ class moves():
         self.direct_hv, self.hidden_hv, self.pinned_hv, self.direct_d, \
             self.hidden_d, self.pinned_d, self.direct_kn, self.check = self.king_safety(self.primary_king,attack=False)
         
+        
         # holds all moves
         self.all_moves = {**self.pawn_moves,**self.rook_moves,**self.bishop_moves,
                           **self.knight_moves,**self.queen_moves,**self.king_moves}
@@ -80,10 +81,10 @@ class moves():
         for p, pinned_squares in {**self.pinned_d,**self.pinned_hv}.items():
             pinned_squares = set(pinned_squares)
             self.all_moves[p] = list(pinned_squares.intersection(self.all_moves[p]))
-        
+            self.all_captures[p] = list(pinned_squares.intersection(self.all_captures[p]))
+            
         # CAN DEFINITELY BE IMPROVED
         if len(self.check) > 0: # in check 
-        # ffs this is where it would make a lot of sense to have bitboards for moves?
 
             if len(self.check) > 1: # double check
             
@@ -107,7 +108,6 @@ class moves():
                 pass
                     
         
-    #slide_ind_change = [8,1,7,9]
     def sliding(self,start,direction): 
         """
         start: start index square
@@ -120,15 +120,13 @@ class moves():
         row = start // 8
         col = start % 8
         possible_moves = np.zeros(64,dtype='byte')
-        captures = np.zeros(64,dtype='byte')
-        def range_loop(fwd,back,s,move,captures):
+        def range_loop(fwd,back,s,move):
             for x in range(fwd): # forwards
                 ind = start + (x+1)*s
                 if self.blockers[ind] == 1:
                     break
                 move[ind] = 1
                 if self.opp_pieces[ind]==1:
-                    captures[ind] == 1
                     break
                 
             for x in range(back): # backwards
@@ -137,33 +135,35 @@ class moves():
                     break
                 move[ind] = 1
                 if self.opp_pieces[ind]==1:
-                    captures[ind] == 1
                     break
-            return move, captures
+            return move
         
         
         for slide_change in direction:
             
             if slide_change == 8 : # vertical movement
-                possible_moves, captures = range_loop(7-row,row,slide_change,possible_moves,captures) 
+            
+                possible_moves = range_loop(7-row,row,slide_change,possible_moves) 
                 
             elif slide_change == 1 : # horizoal movement
-                possible_moves, captures = range_loop(7-col,col,slide_change,possible_moves,captures) 
+            
+                possible_moves = range_loop(7-col,col,slide_change,possible_moves) 
                 
             elif slide_change == 7 : # top left to bot right
             
                 fwd_v = min(7-row,col) # fwd range value
                 back_v = min(row,7-col) # back range value
-                possible_moves, captures = range_loop(fwd_v,back_v,slide_change,possible_moves,captures) 
+                possible_moves = range_loop(fwd_v,back_v,slide_change,possible_moves) 
                 
             elif slide_change == 9 : # top right to bot left  
             
                 fwd_v = min(7-row,7-col) # fwd range value
                 back_v = min(row,col) # back range value
-                possible_moves, captures = range_loop(fwd_v,back_v,slide_change,possible_moves,captures) 
+                possible_moves = range_loop(fwd_v,back_v,slide_change,possible_moves) 
                 
                 
-        possible_moves = np.bitwise_and(possible_moves,1-self.blockers) 
+        possible_moves = np.bitwise_and(possible_moves,1-self.blockers)
+        captures = np.bitwise_and(possible_moves,self.opp_pieces)
         return possible_moves, captures
         
     
@@ -339,11 +339,29 @@ class moves():
         moves = {}
         captures = {}
         
+        p_moves = []
+        p_captures = []
         
-        
-        def castling():
-            # castle moves
-            pass
+        if any(castle_rights):
+            # castle moves generates
+            if castle_rights[0]:
+                # long castles
+                k_end = start - 2
+                #check = start - 3
+                if all(self.occupancy[start-i] == 0 for i in range(1,4)):
+                    if self.king_safety(start-1,attack=False,check_move=True) and \
+                        self.king_safety(start-2,attack=False,check_move=True):
+                        p_moves.append(k_end)
+
+            if castle_rights[1]:
+                # short castles
+                k_end = start + 2
+                #check = start + 2
+                if all(self.occupancy[start+i] == 0 for i in range(1,3)):
+                    if self.king_safety(start+1,attack=False,check_move=True) and \
+                        self.king_safety(start+2,attack=False,check_move=True):
+                        p_moves.append(k_end)
+    
         
         # basic king moves
         basic_moves = [-1,-7,-8,-9,1,7,8,9]
@@ -358,8 +376,7 @@ class moves():
             else:
                 basic_moves = [i for i in basic_moves if i not in [1,-7,9]]
         
-        p_moves = []
-        p_captures = []
+        
         
         for m in basic_moves:
             if self.blockers[start + m] == 0: # no friendly piece
@@ -373,7 +390,7 @@ class moves():
                     p_moves.append(start + m) # move
               
         b_moves[start] = p_moves    
-        moves[start] = p_moves
+        moves[start] = p_moves 
         captures[start] = p_captures
         return b_moves ,moves , captures
     

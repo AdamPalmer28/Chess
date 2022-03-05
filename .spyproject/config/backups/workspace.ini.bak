@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['ChessMain.py', 'Chess_engine.py', 'generate_moves.py', 'test.py', 'evac.py', 'AdderBot.py']
+recent_files = ['ChessMain.py', 'Chess_engine.py', 'AdderBot.py', 'eval_calc.py', 'generate_moves.py', 'output_calls.txt', 'output_time.txt']
 
