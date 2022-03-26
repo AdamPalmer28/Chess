@@ -67,7 +67,7 @@ class moves():
         self.basic_king_moves, self.king_moves, self.king_captures = self.gen_king_moves(self.castle_rights)
         
         self.direct_hv, self.hidden_hv, self.pinned_hv, self.direct_d, \
-            self.hidden_d, self.pinned_d, self.direct_kn, self.check = self.king_safety(self.primary_king,attack=False)
+            self.hidden_d, self.pinned_d, self.direct_kn, self.check = self.king_analysis(self.primary_king,attack=False)
         
         
         # holds all moves
@@ -349,8 +349,8 @@ class moves():
                 k_end = start - 2
                 #check = start - 3
                 if all(self.occupancy[start-i] == 0 for i in range(1,4)):
-                    if self.king_safety(start-1,attack=False,check_move=True) and \
-                        self.king_safety(start-2,attack=False,check_move=True):
+                    if self.king_analysis(start-1,attack=False,check_move=True) and \
+                        self.king_analysis(start-2,attack=False,check_move=True):
                         p_moves.append(k_end)
 
             if castle_rights[1]:
@@ -358,8 +358,8 @@ class moves():
                 k_end = start + 2
                 #check = start + 2
                 if all(self.occupancy[start+i] == 0 for i in range(1,3)):
-                    if self.king_safety(start+1,attack=False,check_move=True) and \
-                        self.king_safety(start+2,attack=False,check_move=True):
+                    if self.king_analysis(start+1,attack=False,check_move=True) and \
+                        self.king_analysis(start+2,attack=False,check_move=True):
                         p_moves.append(k_end)
     
         
@@ -380,7 +380,7 @@ class moves():
         
         for m in basic_moves:
             if self.blockers[start + m] == 0: # no friendly piece
-                if self.king_safety(start+m,attack=False,check_move=True):
+                if self.king_analysis(start+m,attack=False,check_move=True):
                     # make sure kings don't touch
                     if (abs((start + m)//8 - self.opponent_king//8) <= 1) &  \
                         (abs((start + m)%8 - self.opponent_king%8) <= 1): 
@@ -396,7 +396,7 @@ class moves():
     
     
     
-    def king_safety(self,start,attack=False,check_move=False):
+    def king_analysis(self,start,attack=False,check_move=False):
         # checks king safety and possible attacks
         
         row = start // 8

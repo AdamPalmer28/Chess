@@ -88,8 +88,8 @@ def main(white =0,black = 0,AI_depth=2):
             #time.sleep(0.5)
             if gs.status == 0 or gs.status == 1:
                 print("AI searching for the \"best\" move")
-                AI_move = AdderBot.alphabeta_search(gs,AI_depth)
-                
+                #AI_move = AdderBot.alphabeta_search(gs,AI_depth)
+                AI_move = AdderBot.adder_chess(gs,AI_depth)
                 gs.make_move(AI_move[0],AI_move[1])
                 
                 print("AI evaluated {} different postions \n".format(eval_calc.evaluation.calls-track))
@@ -124,7 +124,7 @@ def main(white =0,black = 0,AI_depth=2):
                         # boundaries aren't very good
                         if len(gs.move_log)!=0:
                             gs.undo_move()
-                            gs.undo_move()
+                            gs.undo_move() # because of AI
                             draw_board_state(screen,gs,None)
                 
                 # Interactive with board
@@ -163,6 +163,8 @@ def main(white =0,black = 0,AI_depth=2):
                             gs.make_move(start_index,end_index) # make move
                             selected_piece = 0 # reset selected piece
                             draw_board_state(screen,gs,None)
+                            
+                            print('AI evaluate the current board as ',eval_calc.evaluation(gs))
                             #print(gs.captures)
             
         clock.tick(max_fps)
@@ -300,7 +302,7 @@ def stalemate(screen): # Stalemate GFX
 if __name__ == '__main__':
     ref_matrix = np.arange(64).reshape(8,8)[::-1,]# for my visulisation
     
-    w_player = 1 
+    w_player = 1
     b_player = 0
     # 1 = human, 0 = AI
 
@@ -310,6 +312,8 @@ if __name__ == '__main__':
     import cProfile
     import pstats
     #from pstats import SortKey
+    
+    
     
     cProfile.run("main(white = w_player, black = b_player)", "code_analysis/output.dat")
     

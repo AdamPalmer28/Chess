@@ -25,6 +25,14 @@ class board_divide():
         self.long_2_diag = np.zeros(64,dtype='byte')
         self.long_3_diag = np.zeros(64,dtype='byte')
         
+        # board cols
+        self.col = {}
+        for c in range(8):
+            # all board cols
+            self.col[c] = np.zeros(64,dtype='byte')
+            for i in range(8):
+                self.col[c][c+8*i] = 1
+            
         for i in range(8):
             # cols
             self.centre_col[3+i*8] = 1

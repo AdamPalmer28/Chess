@@ -28,6 +28,7 @@ def counted(f):
 
 
 
+
 def quiesce(gs,alpha,beta,capture_depth=0):
         "Searchs all possible caputres for possible tatics after intial depth"
         stand_score = (1 if gs.w_to_move else -1) * evaluation(gs)
@@ -54,10 +55,8 @@ def quiesce(gs,alpha,beta,capture_depth=0):
                     
         return alpha
     
-@timer
+#@timer
 def alphabeta_search(gs,total_depth=2): 
-    
-
     
     bestmoves_dict = {}
     
@@ -103,21 +102,47 @@ def alphabeta_search(gs,total_depth=2):
     #print(bestmoves_dict)
     return bestmoves_dict[max(bestmoves_dict.keys())]
 
+
+
+from multiprocessing import Process
+import os
 @timer
 def adder_chess(gs,depth):
     "Implements a min-max algorithm with Alpha-beta prunning"
-    best_move = None
-    #
+    
+    # num_process = os.cpu_count()
+    # cores = []
+    
+    # for i in range(num_process):
+    #     process = Process(target=alphabeta_search, args =(gs,depth))
+    #     cores.append(process)
+    
+    #     for process in cores:
+    #         process.start()
+    
+    #     for process in cores:
+    #         process.join()
+            
+    best_move = alphabeta_search(gs,depth)
+    
+    #alphabeta_search(gs,depth)
     return best_move
 
+# %%
+# from multiprocessing import Process
+# import os
 
+# num_process = os.cpu_count()
+# cores = []
+# for i in range(num_process):
+#     process = Process(target=alphabeta_search)
+#     cores.append(process)
 
+#     for process in cores:
+#         process.start()
 
-
-
-
-
-
+#     for process in cores:
+#         process.join()
 
 
 

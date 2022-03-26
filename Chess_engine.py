@@ -56,6 +56,8 @@ class game_state():
         self.black_bit_boards = [self.b_pawns, self.b_knight, self.b_bishop, self.b_rook, self.b_queen, self.b_king]
         self.piece_bit_boards = self.white_bit_boards + self.black_bit_boards
         
+        self.w_occ = np.zeros(64,dtype='byte')
+        self.b_occ = np.zeros(64,dtype='byte')
         
         self.piece_dict = {'wp':self.w_pawns,'wN':self.w_knight, 'wB':self.w_bishop, 
                            'wR':self.w_rook, 'wQ':self.w_queen, 'wK':self.w_king,

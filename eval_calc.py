@@ -15,27 +15,37 @@ Areas of evaluation:
     Basic: [Done]
         > piece score [Done]
         > Checkmate / Stalemate: [Done]
-            > Stalemate
         > piece boards [Done]
         
     Intermediate:
-        > pawn structure
-        > attackers
-        > defenders
-        > protectees(?)
+        > pawn contested [Done]
+        > pawn structure:
+            > chain [Done]
+            > double pawns
+            > past pawns
+            > isolated pawns
+            > last 3 rows
+        > Board space 
+        > move rays:
+            > bishop
+            > rook
+            > queen
+        > (P) basic king safety
+        > improve knight eval:
+            > postioning
+            > "outputs"
+            > eval scalars
         > rook eval:
             > vertical squares
             > pawns ahead of rook?
         
     Advanced:
-        > board space
-        > xray
+        > attackers
+        > defenders
+        > protectees(?)
 
 """
 import numpy as np
-from board_sections import board_divide as bd
-
-board = bd()
 
 def counted(f):
     def wrapped(*args, **kwargs):
@@ -44,18 +54,11 @@ def counted(f):
     wrapped.calls = 0
     return wrapped
 
+from evaluation import all_eval, opening, middle, end_game, rays
+
 @counted
 def evaluation(gs):
     """
-    [--< Critical to optermisation >--]
-    The evaluation function handles evaluating a postion
-    
-    
-    The method to evaluate it tbd:
-        evaluate the whole position every time?
-            smart evac? only evaluate when there is an update
-        evac each side seperately? independently?
-        
     Inputs:
         > Piece bitboards
         > Who's next to move? (simply guess next move? - not much weighting)
@@ -74,58 +77,39 @@ def evaluation(gs):
         "Counts board peices"
         score = 0
         score += (gs.w_pawns - gs.b_pawns).sum() * 1
-        score += (gs.w_knight - gs.b_knight).sum() * 3.1
-        score += (gs.w_bishop - gs.b_bishop).sum() * 3.3
+        score += (gs.w_knight - gs.b_knight).sum() * 3
+        score += (gs.w_bishop - gs.b_bishop).sum() * 3
         score += (gs.w_rook - gs.b_rook).sum() * 5
         score += (gs.w_queen - gs.b_queen).sum() * 9
         
         score += (gs.w_king - gs.b_king).sum() * 100 # not sure if its needed
         
         return score
-        
-       
     total_eval = basic_p_count()
-       
-    def bishop_pos():
-        "Basic bishop postions"
-        score = 0
-        score += np.bitwise_and(gs.w_bishop, board.long_1_diag).sum() * 0.6
-        score -= np.bitwise_and(gs.b_bishop, board.long_1_diag).sum() * 0.6
-        
-        score += np.bitwise_and(gs.w_bishop, board.long_2_diag).sum() * 0.45
-        score -= np.bitwise_and(gs.b_bishop, board.long_2_diag).sum() * 0.45
-                
-        score += np.bitwise_and(gs.w_bishop, board.long_3_diag).sum() * 0.35
-        score -= np.bitwise_and(gs.b_bishop, board.long_3_diag).sum() * 0.35
-        return score
     
-    total_eval += bishop_pos()
-    
-    def knight_pos():
-        "Basic knight postions"
-        score = 0
-        score += np.bitwise_and(gs.w_knight, board.mid).sum() * 0.3
-        score -= np.bitwise_and(gs.b_knight, board.mid).sum() * 0.3
-        
-        score += np.bitwise_and(gs.w_knight, board.w_mid).sum() * 0.15
-        score -= np.bitwise_and(gs.b_knight, board.b_mid).sum() * 0.15
-         
-        return score
-    
-    total_eval += knight_pos()
-    
-    def rook_eval():
-        score = 0
-        
-        return score
+    move_rays = rays.gen_rays(gs.white_bit_boards,gs.black_bit_boards)
     
     
-    def pawn_eval():
-        score = 0
-        
-        return score
+    total_eval += all_eval.eval_all_time(gs,move_rays) # eval for all stages of game
     
     
+    # piece total
+    w_p_total = gs.w_pawns.sum() + 3*gs.w_knight.sum() + 3*gs.w_bishop.sum() +\
+                5*gs.w_rook.sum() + 9*gs.w_queen.sum()
+    b_p_total = gs.b_pawns.sum() + 3*gs.b_knight.sum() + 3*gs.b_bishop.sum() +\
+                5*gs.b_rook.sum() + 9*gs.b_queen.sum()
     
+    
+    if gs.move_count < 20:
+        # opening
+         total_eval += opening.opening_eval(gs)
+    elif (w_p_total < 20) and (b_p_total < 20):
+        # end
+         total_eval += end_game.end_eval(gs)
+    else:
+        # mid
+         total_eval += middle.mid_eval(gs)
     
     return total_eval
+
+
