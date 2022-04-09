@@ -38,7 +38,7 @@ def quiesce(gs,alpha,beta,capture_depth=0):
         if alpha < stand_score:
             alpha = stand_score
             
-        if capture_depth == 4:
+        if capture_depth == 6:
             "limit quiesce depth"
             return alpha
         

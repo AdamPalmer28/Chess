@@ -114,6 +114,9 @@ class gen_rays():
         self.w_knight = self.knight_move(w_bb[1])
         self.b_knight = self.knight_move(b_bb[1])
         
+        self.w_king = self.knight_move(w_bb[5]) + self.slide_move(w_bb[5],[1,8,7,9])
+        self.b_king = self.knight_move(b_bb[5]) + self.slide_move(b_bb[5],[1,8,7,9])
+        
         
     def slide_move(self,bb,slide):
         p_rays = np.zeros(64,dtype='byte')

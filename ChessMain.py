@@ -303,7 +303,7 @@ if __name__ == '__main__':
     ref_matrix = np.arange(64).reshape(8,8)[::-1,]# for my visulisation
     
     w_player = 1
-    b_player = 0
+    b_player = 1
     # 1 = human, 0 = AI
 
     #main(white = w_player, black = b_player)
@@ -313,10 +313,7 @@ if __name__ == '__main__':
     import pstats
     #from pstats import SortKey
     
-    
-    
     cProfile.run("main(white = w_player, black = b_player)", "code_analysis/output.dat")
-    
     
     with open("code_analysis/output_time.txt","w") as f:
         p = pstats.Stats("code_analysis/output.dat", stream=f)

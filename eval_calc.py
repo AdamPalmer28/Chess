@@ -19,12 +19,7 @@ Areas of evaluation:
         
     Intermediate:
         > pawn contested [Done]
-        > pawn structure:
-            > chain [Done]
-            > double pawns
-            > past pawns
-            > isolated pawns
-            > last 3 rows
+        > pawn structure: [Done]
         > Board space 
         > move rays:
             > bishop
@@ -35,9 +30,7 @@ Areas of evaluation:
             > postioning
             > "outputs"
             > eval scalars
-        > rook eval:
-            > vertical squares
-            > pawns ahead of rook?
+        > rook eval: [Done]
         
     Advanced:
         > attackers
@@ -99,6 +92,12 @@ def evaluation(gs):
     b_p_total = gs.b_pawns.sum() + 3*gs.b_knight.sum() + 3*gs.b_bishop.sum() +\
                 5*gs.b_rook.sum() + 9*gs.b_queen.sum()
     
+    def king_safety():
+        "Works out the safety of the kings"
+        for turn, king_pos in enumerate([gs.w_king.nonzero()[0][0],gs.b_king.nonzero()[0][0]]):
+            pass
+    
+    
     
     if gs.move_count < 20:
         # opening
@@ -110,6 +109,6 @@ def evaluation(gs):
         # mid
          total_eval += middle.mid_eval(gs)
     
-    return total_eval
+    return np.round(total_eval,3)
 
 

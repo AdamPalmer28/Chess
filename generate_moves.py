@@ -64,11 +64,12 @@ class moves():
         self.bishop_moves, self.bishop_captures = self.gen_bishop_moves(self.primary_bb[2])
         self.knight_moves, self.knight_captures = self.gen_knight_moves(self.primary_bb[1])
         self.queen_moves, self.queen_captures = self.gen_queen_moves(self.primary_bb[4])
-        self.basic_king_moves, self.king_moves, self.king_captures = self.gen_king_moves(self.castle_rights)
+        
         
         self.direct_hv, self.hidden_hv, self.pinned_hv, self.direct_d, \
             self.hidden_d, self.pinned_d, self.direct_kn, self.check = self.king_analysis(self.primary_king,attack=False)
         
+        self.basic_king_moves, self.king_moves, self.king_captures = self.gen_king_moves(self.castle_rights)
         
         # holds all moves
         self.all_moves = {**self.pawn_moves,**self.rook_moves,**self.bishop_moves,
@@ -342,15 +343,16 @@ class moves():
         p_moves = []
         p_captures = []
         
-        if any(castle_rights):
+        if any(castle_rights) and (len(self.check) == 0):
             # castle moves generates
             if castle_rights[0]:
                 # long castles
                 k_end = start - 2
                 #check = start - 3
                 if all(self.occupancy[start-i] == 0 for i in range(1,4)):
-                    if self.king_analysis(start-1,attack=False,check_move=True) and \
-                        self.king_analysis(start-2,attack=False,check_move=True):
+                    # if self.king_analysis(start-1,attack=False,check_move=True) and \
+                    #     self.king_analysis(start-2,attack=False,check_move=True):
+                    if (self.king_move_check(start-1)) and (self.king_move_check(start-2)):
                         p_moves.append(k_end)
 
             if castle_rights[1]:
@@ -358,8 +360,9 @@ class moves():
                 k_end = start + 2
                 #check = start + 2
                 if all(self.occupancy[start+i] == 0 for i in range(1,3)):
-                    if self.king_analysis(start+1,attack=False,check_move=True) and \
-                        self.king_analysis(start+2,attack=False,check_move=True):
+                    # if self.king_analysis(start+1,attack=False,check_move=True) and \
+                    #     self.king_analysis(start+2,attack=False,check_move=True):
+                    if (self.king_move_check(start+1)) and (self.king_move_check(start+2)):
                         p_moves.append(k_end)
     
         
@@ -380,7 +383,8 @@ class moves():
         
         for m in basic_moves:
             if self.blockers[start + m] == 0: # no friendly piece
-                if self.king_analysis(start+m,attack=False,check_move=True):
+                #if self.king_analysis(start+m,attack=False,check_move=True):
+                if self.king_move_check(start+m):
                     # make sure kings don't touch
                     if (abs((start + m)//8 - self.opponent_king//8) <= 1) &  \
                         (abs((start + m)%8 - self.opponent_king%8) <= 1): 
@@ -396,7 +400,7 @@ class moves():
     
     
     
-    def king_analysis(self,start,attack=False,check_move=False):
+    def king_analysis(self,start,attack=False):
         # checks king safety and possible attacks
         
         row = start // 8
@@ -523,8 +527,6 @@ class moves():
                                     elif len(back_friendly) == 0: # direct attack
                                         check[ind] = list(squares)
                                         
-                                        
-                                
                     if attack_occ[ind] == 1: # blocking pieces 
                         back_blocker.append(ind) 
                         
@@ -554,13 +556,127 @@ class moves():
         direct_d, hidden_d, pinned_d = king_hv_diag_loop({7:(min(7-row,col),min(row,7-col)),9:(min(7-row,7-col),min(row,col))})
         
         
-        if check_move:
-            if len(check) > 0: # move would be in check
-                return False 
-            else:
-                return True
-        else:
-            return direct_hv, hidden_hv, pinned_hv, direct_d, hidden_d, pinned_d, direct_kn, check 
+        return direct_hv, hidden_hv, pinned_hv, direct_d, hidden_d, pinned_d, direct_kn, check 
     
 
+    def king_move_check(self,start):
+        row = start // 8
+        col = start % 8
+        
+        defend_bb = self.primary_bb
+        attack_bb = self.opponent_bb
+          
+        defend_occ = np.zeros(64,dtype='byte') # defence occupancy
+        for ind, bb in enumerate(defend_bb):
+            if ind == 5: # king bb
+                continue
+            defend_occ = np.bitwise_or(defend_occ,bb)
+        attack_occ = np.zeros(64,dtype='byte') # attack occupancy
+        for bb in attack_bb:
+            attack_occ = np.bitwise_or(attack_occ,bb)
+            
+        all_occ = np.bitwise_or(attack_occ,defend_occ) # all occupancy
+        
+        # Possible knight attacks
+        direct_kn = np.zeros(64,dtype='byte')
+        def knight_attacks():
+            knight_jumps = [-17,-15,-10,-6,6,10,15,17]
+            if row in [1,6]:# one square away (north & south)
+                if row == 1: # south
+                    knight_jumps = [j for j in knight_jumps if j not in [-17,-15]]
+                else:           # north
+                    knight_jumps = [j for j in knight_jumps if j not in [15,17]]
+                    
+            elif row in [0,7]:# edge of board (north & south) 
+                if row == 0: # south
+                    knight_jumps = [j for j in knight_jumps if j not in [-17,-15,-10,-6]]
+                else:           # north   
+                    knight_jumps = [j for j in knight_jumps if j not in [17,15,10,6]]
+    
+            if col in [1,6]: # one square away (east & west)
+                if col == 1:  # west
+                    knight_jumps = [j for j in knight_jumps if j not in [6,-10]]
+                else:           # east
+                    knight_jumps = [j for j in knight_jumps if j not in [10,-6]]
+                    
+            elif col in [0,7]: # edge of board (east & west)
+                if col == 0:  # west
+                    knight_jumps = [j for j in knight_jumps if j not in [-17,-10,6,15]]
+                else:           # east
+                    knight_jumps = [j for j in knight_jumps if j not in [-15,-6,10,17]]
+            
+            for j in knight_jumps:
+                direct_kn[start+j] = 1
+        knight_attacks()  
+        
+        if np.bitwise_and(attack_bb[1],direct_kn).sum() != 0:
+            return False
+            
+        # horizontal / vertical & diagonal attacks
+        def hvd_search(slider_dict):
+            if 1 in slider_dict: # rook / queen
+                attack_bb_index = [3,4]
+            else: # bishop / queen
+                attack_bb_index = [2,4]
+            
+            for s, (fwd,back) in slider_dict.items():
+                
+                # === Forwards loop === 
+                for x in range(fwd): # forward
+                    ind = start + (x+1)*s
+                    
+                    if defend_occ[ind] == 1: # defending pieces 
+                        break
+                    else: # attacking pieces
+                        for i in attack_bb_index: 
+                            if attack_bb[i][ind] == 1: # rook / bishop / queen in line
+                                return False
+                                
+                    if attack_occ[ind] == 1: # blocking pieces 
+                        break
+                    
+                # === Backwards loop ===
+                for x in range(back): 
+                    ind = start - (x+1)*s 
+                    
+                    if defend_occ[ind] == 1: # defending pieces 
+                        break
+                    
+                    else: # attacking pieces
+                        for i in attack_bb_index: 
+                            if attack_bb[i][ind] == 1: # rook / bishop / queen in line
+                                return False
+                                        
+                    if attack_occ[ind] == 1: # blocking pieces
+                        break
+            return True          
+                    
+        def pawn_attacks():
+            # maybe a better place to put this?
+            col_con = (1 if self.w_to_move else -1)
+            for i in [7,9]:
+                ind = start + i*col_con
+                
+                # edge of board
+                if (start % 8 == 7) & (ind % 8 != 6):
+                    continue
+                if (start % 8 == 0) & (ind % 8 != 1):
+                    continue
+                if start // 8 == 3.5 + 3.5*col_con:
+                    continue
+                
+                if attack_bb[0][ind] == 1:
+                    return False
+            return True
+        
+        if not pawn_attacks():
+            return False
+        
+        if not hvd_search({1:(7-col,col),8:(7-row,row)}):
+            return False
+        
+        if not hvd_search({7:(min(7-row,col),min(row,7-col)),9:(min(7-row,7-col),min(row,col))}):
+            return False
+        
+        return True
     
